@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Tool Database — Audio Chapters + Web</title>
+  <style>
+    :root{
+      --bg:#0f1115; --card:#141826; --muted:#9aa3b2; --text:#e8ecf3;
+      --accent:#6aa6ff; --accent2:#7cf8c8; --border:#22283a; --thead:#0f1424;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#0c0f14,#0f1115 40%);color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;}
+    .container{max-width:1200px;margin:0 auto;padding:24px}
+    .title{font-size:clamp(22px,4vw,36px);font-weight:800;line-height:1.1;margin:0 0 8px}
+    .sub{color:var(--muted);margin:0 0 16px;max-width:950px}
+    .card{background:linear-gradient(180deg,#141827,#0f1320);border:1px solid var(--border);border-radius:18px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .audio-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px;border-radius:14px;background:#0e1220;border:1px solid var(--border);margin:10px 0 22px}
+    .audio-bar label{font-size:14px;color:var(--muted)}
+    audio{width:100%}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+    .tab{padding:10px 14px;border-radius:999px;border:1px solid var(--border);background:#0f1424;color:var(--text);cursor:pointer;font-weight:700;font-size:14px;transition:all .2s ease;letter-spacing:.2px}
+    .tab[aria-selected="true"]{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0b0f16;border-color:transparent}
+    .panel{display:none}
+    .panel.active{display:block}
+    .row{display:flex;gap:16px;flex-wrap:wrap}
+    .col{flex:1 1 420px}
+    .input,.btn,input[type="text"],input[type="url"]{width:100%;padding:12px 14px;border-radius:12px;background:#0c1120;border:1px solid var(--border);color:var(--text);font-size:14px;outline:none}
+    .btn{background:linear-gradient(90deg,#3a66ff,#17d1a8);border:none;font-weight:800;cursor:pointer;transition:filter .15s ease}
+    .btn:hover{filter:brightness(1.06)}
+    .btn-ghost{background:#0f1424;border:1px solid var(--border);color:var(--text)}
+    .help{font-size:13px;color:var(--muted)}
+    iframe,embed{width:100%;min-height:720px;border:1px solid var(--border);border-radius:14px;background:#0a0d17}
+    .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:14px;background:#0a0d17}
+    table{border-collapse:collapse;width:100%;min-width:1000px}
+    th,td{padding:10px 12px;border-bottom:1px solid #1a2033;vertical-align:top}
+    th{position:sticky;top:0;background:var(--thead);z-index:2;text-align:left;font-size:13px;color:#c9d2ea;cursor:pointer;white-space:nowrap}
+    tr:hover td{background:#10162a}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;align-items:center}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace;border:1px solid #2b3350;border-bottom-width:2px;background:#0b0f1d;padding:2px 6px;border-radius:6px;color:#b9c7ff}
+    footer{margin:28px 0 8px;color:#7f8aad;font-size:12px;text-align:center}
+    .chapterline{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 0}
+    .chip{padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:#10162a;color:#cfe8ff;font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">AI Tool Database — Guided Web Version (with Chapters)</h1>
+    <p class="sub">Click <b>Play this section</b> to jump the audio to the relevant chapter. You can edit timestamps in the CONFIG block inside the HTML.</p>
+
+    <div class="card audio-bar">
+      <label for="audio">Narration</label>
+      <audio id="audio" controls preload="metadata">
+        <source src="ElevenLabs_2025-08-26T20_37_34_Rachel_pre_sp100_s50_sb75_se0_b_m2.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+      <a href="ElevenLabs_2025-08-26T20_37_34_Rachel_pre_sp100_s50_sb75_se0_b_m2.mp3" download class="btn" style="min-width:160px;text-align:center">Download Audio</a>
+    </div>
+
+    <nav class="tabs" role="tablist" aria-label="Data source">
+      <button class="tab" role="tab" aria-selected="true" aria-controls="panel-pdf" id="tab-pdf">PDF Viewer</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="panel-sheet" id="tab-sheet">Embed Google Sheet</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="panel-csv" id="tab-csv">Upload CSV</button>
+    </nav>
+
+    <!-- Panel: PDF -->
+    <section class="panel active" id="panel-pdf" role="tabpanel" aria-labelledby="tab-pdf" data-chapter="pdf">
+      <div class="card">
+        <div class="toolbar">
+          <button class="btn-ghost" data-play="pdf">▶ Play this section</button>
+          <span class="help">Narration chapter: <span class="chip" id="chip-pdf"></span></span>
+        </div>
+        <p class="help">This embeds your uploaded PDF (<span class="kbd">AI Tool Database.pdf</span>). Keep the HTML, the PDF, and the MP3 together when hosting.</p>
+      </div>
+      <div style="height:14px"></div>
+      <div class="table-wrap">
+        <embed src="AI%20Tool%20Database.pdf" type="application/pdf" />
+      </div>
+    </section>
+
+    <!-- Panel: Google Sheet Embed -->
+    <section class="panel" id="panel-sheet" role="tabpanel" aria-labelledby="tab-sheet" data-chapter="sheet">
+      <div class="card">
+        <div class="toolbar">
+          <button class="btn-ghost" data-play="sheet">▶ Play this section</button>
+          <span class="help">Narration chapter: <span class="chip" id="chip-sheet"></span></span>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="sheetUrl" class="help">Paste your published Google Sheet URL (File → Share → Publish to web → “Entire document”) and click <b>Embed</b>.</label>
+            <input id="sheetUrl" class="input" type="url" placeholder="https://docs.google.com/spreadsheets/d/.../pubhtml" />
+          </div>
+          <div class="col" style="max-width:200px;align-self:flex-end">
+            <button id="embedBtn" class="btn">Embed</button>
+          </div>
+        </div>
+        <p class="help" style="margin-top:8px">
+          Tip: For a clean view, use the published “<span class="kbd">pubhtml</span>” link. You can also tweak the height below.
+        </p>
+        <div class="row" style="margin-top:10px">
+          <div class="col" style="max-width:240px">
+            <label class="help" for="sheetHeight">Embed height (px)</label>
+            <input id="sheetHeight" class="input" type="text" value="720" />
+          </div>
+        </div>
+      </div>
+      <div style="height:14px"></div>
+      <iframe id="sheetFrame" title="AI Tool Database (Google Sheet)"></iframe>
+    </section>
+
+    <!-- Panel: CSV Upload -->
+    <section class="panel" id="panel-csv" role="tabpanel" aria-labelledby="tab-csv" data-chapter="csv">
+      <div class="card">
+        <div class="toolbar">
+          <button class="btn-ghost" data-play="csv">▶ Play this section</button>
+          <span class="help">Narration chapter: <span class="chip" id="chip-csv"></span></span>
+        </div>
+        <div class="toolbar">
+          <input id="csvFile" type="file" accept=".csv,text/csv" class="input" />
+        </div>
+        <div class="toolbar">
+          <input id="search" type="text" class="input" placeholder="Search all columns — e.g., 'Healthcare', 'Zapier', 'Free', 'API', 'HIPAA'">
+        </div>
+        <p class="help">Expected columns (order can vary): <em>Job Area, AI Tool, Parent Company, Access Type, Problem Solved, How it works, URL, Sector, Integration options, Deployment options, Case studies</em>.</p>
+      </div>
+      <div style="height:14px"></div>
+      <div class="table-wrap">
+        <table id="dataTable" aria-label="AI Tool Database">
+          <thead id="thead"></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      <p>Edit chapter times inside the HTML <span class="kbd">CONFIG</span> below (in seconds). Example: Intro 0, Sheet 40, CSV 95.</p>
+    </footer>
+  </div>
+
+  <script>
+    // ========== CONFIG (Edit your chapter timestamps here, in seconds) ==========
+    const CHAPTERS = {
+      pdf: 0,      // Intro + PDF overview starts at 0s
+      sheet: 40,   // Google Sheet embed instructions at 40s
+      csv: 95      // CSV upload/search at 95s
+    };
+    // ==========================================================================
+
+    const audio = document.getElementById('audio');
+    const chips = {
+      pdf: document.getElementById('chip-pdf'),
+      sheet: document.getElementById('chip-sheet'),
+      csv: document.getElementById('chip-csv'),
+    };
+    for (const k of Object.keys(chips)) {
+      chips[k].textContent = timeFmt(CHAPTERS[k]||0);
+    }
+
+    // --- Tabs ---
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.panel');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.setAttribute('aria-selected','false'));
+        panels.forEach(p => p.classList.remove('active'));
+        tab.setAttribute('aria-selected','true');
+        const panel = document.getElementById(tab.getAttribute('aria-controls'));
+        panel.classList.add('active');
+      });
+    });
+
+    // Play-this-section buttons
+    document.querySelectorAll('[data-play]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.getAttribute('data-play');
+        const t = CHAPTERS[key] || 0;
+        try {
+          audio.currentTime = t;
+          audio.play();
+        } catch(e) {
+          console.warn('Audio seek failed:', e);
+        }
+      });
+    });
+
+    function timeFmt(sec) {
+      const s = Math.max(0, Math.floor(+sec||0));
+      const m = Math.floor(s/60);
+      const r = s%60;
+      return m + ':' + String(r).padStart(2,'0');
+    }
+
+    // --- Google Sheet Embed ---
+    const sheetUrlInput = document.getElementById('sheetUrl');
+    const sheetFrame = document.getElementById('sheetFrame');
+    const sheetHeightInput = document.getElementById('sheetHeight');
+    const embedBtn = document.getElementById('embedBtn');
+
+    function setFrameHeight() {
+      const h = parseInt(sheetHeightInput.value, 10);
+      if(!isNaN(h)) sheetFrame.style.minHeight = h + 'px';
+    }
+    setFrameHeight();
+    sheetHeightInput.addEventListener('input', setFrameHeight);
+
+    embedBtn.addEventListener('click', () => {
+      const url = sheetUrlInput.value.trim();
+      if(!url){ alert('Please paste a published Google Sheet URL.'); return; }
+      let src = url;
+      if(url.includes('/edit')){ src = url.replace('/edit#gid=', '/pubhtml?gid=').replace('/edit', '/pubhtml'); }
+      sheetFrame.src = src;
+    });
+
+    // --- CSV Upload + Render ---
+    const csvInput = document.getElementById('csvFile');
+    const tableHead = document.getElementById('thead');
+    const tableBody = document.getElementById('tbody');
+    const searchInput = document.getElementById('search');
+
+    let csvRows = [];
+    let headers = [];
+    let sortState = { key: null, dir: 1 }; // 1 asc, -1 desc
+
+    csvInput.addEventListener('change', () => {
+      const file = csvInput.files?.[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target.result;
+        csvRows = []; headers = [];
+        parseCSV(text);
+        renderTable();
+      };
+      reader.readAsText(file);
+    });
+
+    function parseCSV(text) {
+      const rows = [];
+      let cur = ''; let row = []; let inQuotes = false;
+      for(let i=0;i<text.length;i++) { 
+        const ch = text[i]; const next = text[i+1];
+        if(ch === '"') { if(inQuotes && next === '"') { cur += '"'; i++; } else { inQuotes = !inQuotes; } }
+        else if(ch === ',' && !inQuotes) { row.push(cur); cur=''; }
+        else if((ch === '\n' || ch === '\r') && !inQuotes) { if(cur !== '' || row.length) { row.push(cur); rows.push(row); row=[]; cur=''; } }
+        else { cur += ch; }
+      }
+      if(cur !== '' || row.length) { row.push(cur); rows.push(row); }
+
+      if(rows.length) {
+        headers = rows[0].map(h => (h||'').trim());
+        for(let r=1;r<rows.length;r++) {
+          const obj = {};
+          for(let c=0;c<headers.length;c++) { obj[headers[c] || ('Col'+c)] = (rows[r][c] || '').trim(); }
+          csvRows.push(obj);
+        }
+      }
+    }
+
+    function renderTable() {
+      tableHead.innerHTML = '';
+      const tr = document.createElement('tr');
+      headers.forEach((h) => {
+        const th = document.createElement('th');
+        th.textContent = h || 'Column';
+        th.title = 'Click to sort';
+        th.addEventListener('click', () => sortBy(h));
+        tr.appendChild(th);
+      });
+      tableHead.appendChild(tr);
+      applyFilterAndDraw();
+    }
+
+    function applyFilterAndDraw() {
+      const q = searchInput.value.trim().toLowerCase();
+      let rows = csvRows;
+      if(q) rows = rows.filter(r => Object.values(r).some(v => (v||'').toLowerCase().includes(q)));
+      if(sortState.key) {
+        rows = rows.slice().sort((a,b) => {
+          const va = (a[sortState.key]||'').toLowerCase();
+          const vb = (b[sortState.key]||'').toLowerCase();
+          if(va < vb) return -1 * sortState.dir;
+          if(va > vb) return 1 * sortState.dir;
+          return 0;
+        });
+      }
+      drawBody(rows);
+    }
+
+    function drawBody(rows) {
+      tableBody.innerHTML = '';
+      rows.forEach(r => {
+        const tr = document.createElement('tr');
+        headers.forEach(h => {
+          const td = document.createElement('td');
+          let val = r[h] || '';
+          if(/^https?:\/\//i.test(val)) {
+            const a = document.createElement('a');
+            a.href = val; a.target = '_blank'; a.rel = 'noopener';
+            a.textContent = val; a.style.color = 'var(--accent)';
+            td.appendChild(a);
+          } else { td.textContent = val; }
+          tr.appendChild(td);
+        });
+        tableBody.appendChild(tr);
+      });
+    }
+
+    function sortBy(key) {
+      if(sortState.key === key) sortState.dir *= -1;
+      else { sortState.key = key; sortState.dir = 1; }
+      applyFilterAndDraw();
+    }
+
+    searchInput.addEventListener('input', applyFilterAndDraw);
+  </script>
+</body>
+</html>
